@@ -1,0 +1,154 @@
+#include "tx3703.inc"
+
+	
+	One_set 	EQU 0E0H  
+	Ten_set  	EQU 0D0H  
+	LOne_set	EQU 0B0H
+	LTen_set	EQU 073H
+	
+	NINE	    EQU 0BAH ;10111010b
+	
+	R_TEN 	EQU 0EAH  ;11101010b  
+	R_TENN	EQU 0D3H  ;11010011b  
+	L_TEN	EQU 0B0H  ;10110000b
+	L_TENN  EQU 070H  ;01110000b
+			
+	ROne	EQU 60H	  ;Memory address,
+	RTen	EQU 61H	  ;Memory address,		
+	LOne	EQU 62H	  ;Memory address,
+	LTen	EQU 63H	  ;Memory address,
+	
+	ORG 000h
+	AJMP Start
+	ORG 400h
+Start:
+
+	MOV P0OE,#11111111b;
+	MOV P0,#11111111b;
+	
+	MOV ROne,#One_set 	
+	MOV RTen,#Ten_set 	
+	MOV LOne,#LOne_set  	
+	MOV LTen,#LTen_set  	
+
+
+S1:
+	MOV R2,#10  
+S2:
+	MOV P0,ROne
+	ACALL delay_1s
+	
+	MOV P0,RTen
+	ACALL delay_1s
+	
+	MOV P0,LOne
+	ACALL delay_1s
+	
+	MOV P0,LTen
+	ACALL delay_1s
+	
+	DJNZ R2,S2  
+	
+	
+S3:	
+	INC ROne
+	MOV A,ROne
+	CJNE A,#0EAH,S4    ;0EAH  ;11101010b 
+	MOV ROne,#0E0H   ;0E0H 
+	INC RTen
+
+	AJMP S4
+S4:	
+    MOV R0,LOne
+	DEC LOne
+	CJNE R0,#0B0H,S1   ;0B0H  ;10110000b
+	MOV LOne,#0BAH	    ;0BAH ;10111010b
+	DEC LOne
+	DEC LTen
+	
+	AJMP S5
+S5:
+    MOV A,RTen
+    CJNE A,#0D3H,S1   ;0D3H  ;11010011b 
+	
+	AJMP S6
+
+
+S6:
+    MOV R2,#3
+S7:
+	MOV P0,#11111111b;  
+
+	ACALL delay_10s
+
+	MOV P0,#00000000b;
+	
+	ACALL delay_10s
+	
+	DJNZ R2,S7
+	
+	AJMP Start2
+Start2: 
+	MOV LOne,#0B0H	
+	MOV LTen,#070H
+	MOV ROne,#0E0H	
+	MOV RTen,#0D3H 	
+	
+S11:
+	MOV R2,#10  
+S12:
+	MOV P0,LOne
+	ACALL delay_1s
+	
+	MOV P0,LTen
+	ACALL delay_1s
+	
+	MOV P0,ROne
+	ACALL delay_1s
+	
+	MOV P0,RTen
+	ACALL delay_1s
+	
+	
+	
+	DJNZ R2,S12  
+	
+	
+S13:	
+	INC LOne
+	MOV A,LOne
+	CJNE A,#0BAH,S14    ;0BAH  ;11101010b 
+	MOV LOne,#0B0H  ;0B0H 
+	INC LTen
+
+	AJMP S14
+S14:	
+    MOV R0,ROne
+	DEC ROne
+	CJNE R0,#0E0H,S11   ;0E0H  ;10110000b
+	MOV ROne,#0EAH	    ;0EAH ;10111010b
+	DEC ROne
+	DEC RTen
+	
+	AJMP S15
+S15:
+    MOV A,LTen
+    CJNE A,#073H,S11   ;01110011B
+	
+	AJMP Start
+
+delay_1s:
+	MOV R5,#18
+	D1:
+	MOV  R6,#8
+	DJNZ R6,$
+	DJNZ R5,D1
+	RET
+delay_10s:
+	MOV R5,#100
+	D2:
+	MOV  R6,#100
+	DJNZ R6,$
+	DJNZ R5,D2
+	RET
+	END
